@@ -1,0 +1,2 @@
+# centreon-injector
+Centreon injector
