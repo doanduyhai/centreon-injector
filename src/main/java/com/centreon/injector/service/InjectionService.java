@@ -28,6 +28,9 @@ import com.centreon.injector.error_handling.ErrorFileLogger;
 import com.datastax.driver.core.ResultSet;
 import com.google.common.util.concurrent.ListenableFuture;
 
+/**
+ * Service handling the injection process
+ */
 @Service
 public class InjectionService {
 
@@ -63,9 +66,23 @@ public class InjectionService {
     }
 
     /**
+     * <br/>
      * databin file format:
-     *
+     * <br/>
+     * <br/>
      * id_metric|ctime|value|status
+     * <br/>
+     * <br/>
+     * For each line in the source file
+     * <ul>
+     *     <li>split the line using pipe as separator</li>
+     *     <li>extract fields from the line</li>
+     *     <li>convert ctime data into epoch (in ms)</li>
+     *     <li>extract corresponding hour of day from ctime, format = yyyyMMddHH</li>
+     *     <li>async insert the data into centreon.databin, centreon.databin_by_hour and centreon.rrd_aggregated</li>
+     * </ul>
+     *
+     * For each <code>dse.async_batch_size</code> inserts, we force the thread to sleep <code>dse.async_batch_sleep_in_millis</code> to let the cluster absorb the load
      */
     public void injectDatabin() throws InterruptedException {
         LOGGER.info("Start injecting data from databin file: {}", inputDatabinFile);

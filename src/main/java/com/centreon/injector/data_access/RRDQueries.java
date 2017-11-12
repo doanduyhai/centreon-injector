@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.centreon.injector.configuration.CassandraConfiguration.DSETopology;
+import com.centreon.injector.configuration.DSEConfiguration.DSETopology;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSetFuture;
@@ -17,6 +17,9 @@ import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Session;
 
 /**
+ *
+ *  Repository class to insert data into:
+ *
  *   CREATE TABLE IF NOT EXISTS centreon.rrd_aggregated(
  *       service uuid,
  *       aggregation_unit text, //HOUR, DAY, WEEK, MONTH
@@ -48,6 +51,11 @@ public class RRDQueries {
                 format(INSERT_INTO_RRD_AGGREGATED, dseTopology.keyspace)));
     }
 
+    /**
+     * <br/>
+     * Insert data into centreon.rrd_aggregated table with the aggregation_unit = 'HOUR'.
+     *
+     */
     public ResultSetFuture insertIntoRrdAggregatedForHour(UUID service, long hour, int idMetric, long previousTimeValue, float value) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Insert row {} {} {} {} {}  into rrd_aggregated", service, hour, idMetric, previousTimeValue, value);

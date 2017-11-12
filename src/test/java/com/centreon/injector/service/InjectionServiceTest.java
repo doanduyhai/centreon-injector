@@ -4,15 +4,11 @@ import static com.centreon.injector.configuration.EnvParams.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.core.env.Environment;
 
-import com.centreon.injector.configuration.CassandraConfiguration;
-import com.centreon.injector.configuration.EnvParams;
+import com.centreon.injector.configuration.DSEConfiguration;
 import com.centreon.injector.data_access.DatabinQueries;
 import com.centreon.injector.data_access.MetaDataQueries;
 import com.centreon.injector.data_access.RRDQueries;
@@ -21,7 +17,6 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 
 import info.archinnov.achilles.embedded.CassandraEmbeddedServerBuilder;
-import info.archinnov.achilles.script.ScriptExecutor;
 
 public class InjectionServiceTest {
 
@@ -31,7 +26,7 @@ public class InjectionServiceTest {
             .withScript("cassandra/InjectionService/insert_service_meta.cql")
             .buildNativeSession();
 
-    private static final CassandraConfiguration.DSETopology TOPOLOGY = new CassandraConfiguration.DSETopology("centreon", "dc1");
+    private static final DSEConfiguration.DSETopology TOPOLOGY = new DSEConfiguration.DSETopology("centreon", "dc1");
     private static final MetaDataQueries METADATA_QUERIES = new MetaDataQueries(SESSION, TOPOLOGY);
     private static final DatabinQueries DATABIN_QUERIES = new DatabinQueries(SESSION, TOPOLOGY);
     private static final RRDQueries RRD_QUERIES = new RRDQueries(SESSION, TOPOLOGY);

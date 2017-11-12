@@ -33,6 +33,9 @@ public class InjectionProgram {
 
     public static class InjectorBanner implements Banner {
 
+        /**
+         * Ascii art generator : <a href=http://patorjk.com/software/taag/#p=display&f=Doom&t=AsciiText>http://patorjk.com/software/taag/</a>
+         */
         @Override
         public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
             StringBuilder builder = new StringBuilder();

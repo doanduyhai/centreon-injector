@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 
-import com.centreon.injector.configuration.CassandraConfiguration;
+import com.centreon.injector.configuration.DSEConfiguration;
 import com.datastax.driver.core.Session;
 import com.google.common.collect.ImmutableMap;
 
@@ -22,7 +22,7 @@ public class MetaDataQueriesTest {
             .buildNativeSession();
 
     private static final ScriptExecutor SCRIPT_EXECUTOR = new ScriptExecutor(SESSION);
-    private static final CassandraConfiguration.DSETopology TOPOLOGY = new CassandraConfiguration.DSETopology("centreon", "dc1");
+    private static final DSEConfiguration.DSETopology TOPOLOGY = new DSEConfiguration.DSETopology("centreon", "dc1");
 
 
     @Test

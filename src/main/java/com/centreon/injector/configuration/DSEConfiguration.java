@@ -15,11 +15,32 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.policies.DCAwareRoundRobinPolicy;
 import com.datastax.driver.core.policies.TokenAwarePolicy;
 
+/**
+ * Configuration bean for Connection to DSE
+ */
 @Configuration
-public class CassandraConfiguration {
+public class DSEConfiguration {
 
-    static final private Logger LOGGER = LoggerFactory.getLogger(CassandraConfiguration.class);
+    static final private Logger LOGGER = LoggerFactory.getLogger(DSEConfiguration.class);
 
+    /**
+     *
+     * Build the {@link com.datastax.driver.core.Cluster} singleton.
+     * <br/>
+     * <br/>
+     * Parameters used to build this singleton:
+     *
+     * <ul>
+     *     <li>dse.contact_point</li>
+     *     <li>dse.cluster_name</li>
+     *     <li>dse.read_fetch_size</li>
+     *     <li>dse.default_consistency</li>
+     *     <li>dse.local_DC</li>
+     *     <li>dse.username</li>
+     *     <li>dse.pass</li>
+     * </ul>
+     *
+     */
     @Bean(destroyMethod = "close")
     public Cluster getCluster(@Autowired Environment env) {
         LOGGER.info("Initializing DSE cluster object");
@@ -52,6 +73,17 @@ public class CassandraConfiguration {
         return cluster;
     }
 
+    /**
+     *
+     * Build the {@link com.datastax.driver.core.Session} singleton.
+     * <br/>
+     * <br/>
+     * Parameters used to build this singleton:
+     *
+     * <ul>
+     *     <li>dse.keyspace_name</li>
+     * </ul>
+     */
     @Bean(destroyMethod = "close")
     public Session getSession(@Autowired Environment env, @Autowired Cluster dseCluster) {
         LOGGER.info("Initializing DSE Session object ");
@@ -60,6 +92,19 @@ public class CassandraConfiguration {
                 .connect(env.getProperty(DSE_KEYSPACE_NAME, DSE_KEYSPACE_NAME_DEFAULT));
         return session;
     }
+
+    /**
+     *
+     * Build the DSETopology value object singleton. This is just a value object to inject the keyspace name and local datacenter name into other repositories classes
+     * <br/>
+     * <br/>
+     * Parameters used to build this singleton:
+     *
+     * <ul>
+     *     <li>dse.keyspace_name</li>
+     *     <li>dse.local_DC</li>
+     * </ul>
+     */
 
     @Bean
     public DSETopology getTopology(@Autowired Environment env) {

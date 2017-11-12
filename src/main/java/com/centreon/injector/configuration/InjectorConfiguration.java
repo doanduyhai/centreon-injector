@@ -14,6 +14,9 @@ import org.springframework.core.env.Environment;
 
 import com.centreon.injector.error_handling.ErrorFileLogger;
 
+/**
+ * Configuration bean for the injector itself
+ */
 @Configuration
 public class InjectorConfiguration {
 
@@ -25,6 +28,17 @@ public class InjectorConfiguration {
         this.env = env;
     }
 
+    /**
+     *
+     * Build the {@link com.centreon.injector.error_handling.ErrorFileLogger} singleton.
+     * <br/>
+     * <br/>
+     * Parameters used to build this singleton:
+     *
+     * <ul>
+     *     <li>dse.input_error_file</li>
+     * </ul>
+     */
     @Bean(destroyMethod = "close")
     public ErrorFileLogger getErrorFileLogger() {
         LOGGER.info("Initializing error file");

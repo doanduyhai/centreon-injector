@@ -6,9 +6,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.centreon.injector.configuration.CassandraConfiguration;
+import com.centreon.injector.configuration.DSEConfiguration;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 
@@ -21,7 +20,7 @@ public class RRDQueriesTest {
             .withScript("cassandra/schema.cql")
             .buildNativeSession();
 
-    private static final CassandraConfiguration.DSETopology TOPOLOGY = new CassandraConfiguration.DSETopology("centreon", "dc1");
+    private static final DSEConfiguration.DSETopology TOPOLOGY = new DSEConfiguration.DSETopology("centreon", "dc1");
     private static final RRDQueries RRD_QUERIES = new RRDQueries(SESSION, TOPOLOGY);
 
     @Test

@@ -7,7 +7,7 @@ import java.util.Date;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 
-import com.centreon.injector.configuration.CassandraConfiguration.DSETopology;
+import com.centreon.injector.configuration.DSEConfiguration.DSETopology;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;

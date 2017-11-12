@@ -2,14 +2,12 @@ package com.centreon.injector.data_access;
 
 import static java.lang.String.format;
 
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.centreon.injector.configuration.CassandraConfiguration.DSETopology;
+import com.centreon.injector.configuration.DSEConfiguration.DSETopology;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSetFuture;
@@ -17,6 +15,9 @@ import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Session;
 
 /**
+ *
+ *  Repository class to insert data into the following tables:
+ *
  *   CREATE TABLE IF NOT EXISTS centreon.databin (
  *       id_metric int,
  *       ctime bigint,
@@ -60,6 +61,26 @@ public class DatabinQueries {
                 format(INSERT_INTO_DATABIN_BY_HOUR, dseTopology.keyspace)));
     }
 
+    /**
+     * <br/>
+     * Insert data into the centreon.databin table.
+     * <br/>
+     * <br/>
+     * Please note that mandatory (non null) values are:
+     *
+     * <ul>
+     *     <li>idMetric</li>
+     *     <li>cTimeAsEpoch in millisecs</li>
+     * </ul>
+     *
+     * Optional (nullable) values are:
+     *
+     * <ul>
+     *     <li>value</li>
+     *     <li>status</li>
+     * </ul>
+     *
+     */
     public ResultSetFuture insertIntoDatabin(int idMetric, long cTimeAsEpoch, Float value, Integer status) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Inserting row {} {} {} {} into databin", idMetric, cTimeAsEpoch, value, status);
@@ -84,6 +105,27 @@ public class DatabinQueries {
         return session.executeAsync(bs);
     }
 
+    /**
+     * <br/>
+     * Insert data into the centreon.databin_by_hour table.
+     * <br/>
+     * <br/>
+     * Please note that mandatory (non null) values are:
+     *
+     * <ul>
+     *     <li>hour in format yyyyMMddHH</li>
+     *     <li>idMetric</li>
+     *     <li>cTimeAsEpoch in millisecs</li>
+     * </ul>
+     *
+     * Optional (nullable) values are:
+     *
+     * <ul>
+     *     <li>value</li>
+     *     <li>status</li>
+     * </ul>
+     *
+     */
     public ResultSetFuture insertIntoDatabinByHour(long hour, int idMetric, long cTimeAsEpoch, Float value, Integer status) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Inserting row {} {} {} {} {} into databin_by_hour", hour, idMetric, cTimeAsEpoch, value, status);

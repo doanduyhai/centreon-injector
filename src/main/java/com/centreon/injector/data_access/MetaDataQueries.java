@@ -11,11 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.centreon.injector.configuration.CassandraConfiguration.DSETopology;
+import com.centreon.injector.configuration.DSEConfiguration.DSETopology;
 import com.datastax.driver.core.*;
 
 
 /**
+ *
+ *  Repository class to read data from the table:
+ *
  *   CREATE TABLE IF NOT EXISTS centreon.service_meta(
  *       service uuid,
  *       id_metric int,
@@ -44,9 +47,11 @@ public class MetaDataQueries {
     }
 
     /**
-     *
-     * Currently we load the whole map of service - id_metric into memory
-     * For a customer having millions of services, this approach does NOT work
+     * <br/>
+     * Currently we load the whole map of service - id_metric into memory.
+     * For a customer having millions of services, this approach will <strong>NOT</strong> work
+     * <br/>
+     * <br/>
      * We should then use a caching layer like Redis to perform a fast lookup
      * of service id for each id_metric. In this case this method IMPL should be
      * updated to connect to Redis
