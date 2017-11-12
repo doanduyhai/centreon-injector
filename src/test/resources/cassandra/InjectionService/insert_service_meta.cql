@@ -1,0 +1,10 @@
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 90969);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 46449);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 67298);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 95798);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 17270);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 92151);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 62258);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 94509);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 55962);
+INSERT INTO centreon.service_meta(service, id_metric) VALUES(123e4567-e89b-12d3-a456-426655440000, 28489);
