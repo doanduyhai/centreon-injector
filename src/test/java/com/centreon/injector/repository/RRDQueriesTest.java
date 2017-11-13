@@ -1,10 +1,11 @@
-package com.centreon.injector.data_access;
+package com.centreon.injector.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import com.centreon.injector.configuration.DSEConfiguration;
@@ -13,15 +14,14 @@ import com.datastax.driver.core.Session;
 
 import info.archinnov.achilles.embedded.CassandraEmbeddedServerBuilder;
 
-public class RRDQueriesTest {
+public class RRDQueriesTest extends AbstractTestCassandraRepository {
 
-    private static final Session SESSION = CassandraEmbeddedServerBuilder
-            .builder()
-            .withScript("cassandra/schema.cql")
-            .buildNativeSession();
-
-    private static final DSEConfiguration.DSETopology TOPOLOGY = new DSEConfiguration.DSETopology("centreon", "dc1");
     private static final RRDQueries RRD_QUERIES = new RRDQueries(SESSION, TOPOLOGY);
+
+    @After
+    public void cleanUp() {
+        truncate("centreon.rrd_aggregated");
+    }
 
     @Test
     public void should_insert_into_rrd_aggregated_for_hour() throws Exception {

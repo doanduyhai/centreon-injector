@@ -20,10 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.centreon.injector.configuration.EnvParams;
-import com.centreon.injector.data_access.DatabinQueries;
-import com.centreon.injector.data_access.MetaDataQueries;
-import com.centreon.injector.data_access.RRDQueries;
+import com.centreon.injector.repository.AnalyticsQueries;
+import com.centreon.injector.repository.DatabinQueries;
+import com.centreon.injector.repository.MetaDataQueries;
+import com.centreon.injector.repository.RRDQueries;
 import com.centreon.injector.error_handling.ErrorFileLogger;
 import com.datastax.driver.core.ResultSet;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -39,6 +39,7 @@ public class InjectionService {
     private final DatabinQueries databinQueries;
     private final MetaDataQueries metaDataQueries;
     private final RRDQueries rrdQueries;
+    private final AnalyticsQueries analyticsQueries;
     private final ErrorFileLogger errorFileLogger;
 
     private final int asyncBatchSize;
@@ -53,13 +54,17 @@ public class InjectionService {
                             @Autowired DatabinQueries databinQueries,
                             @Autowired MetaDataQueries metaDataQueries,
                             @Autowired RRDQueries rrdQueries,
+                            @Autowired AnalyticsQueries analyticsQueries,
                             @Autowired ErrorFileLogger errorFileLogger) {
         this.databinQueries = databinQueries;
         this.metaDataQueries = metaDataQueries;
         this.rrdQueries = rrdQueries;
+        this.analyticsQueries = analyticsQueries;
+
         this.asyncBatchSize = Integer.parseInt(env.getProperty(ASYNC_BATCH_SIZE, ASYNC_BATCH_SIZE_DEFAULT));
         this.inputDatabinFile = env.getProperty(DATABIN_INPUT_FILE, DATABIN_INPUT_FILE_DEFAULT);
         this.asyncBatchSleepInMillis = Integer.parseInt(env.getProperty(ASYNC_BATCH_SLEEP_IN_MS, ASYNC_BATCH_SLEEP_IN_MS_DEFAULT));
+
         final int insertProgressDisplayMultiplier = Integer.parseInt(env.getProperty(INSERT_PROGRES_DISPLAY_MULTIPLIER, INSERT_PROGRES_DISPLAY_MULTIPLIER_DEFAULT));
         this.insertProgressCount = asyncBatchSize * insertProgressDisplayMultiplier;
         this.errorFileLogger = errorFileLogger;
@@ -79,7 +84,7 @@ public class InjectionService {
      *     <li>extract fields from the line</li>
      *     <li>convert ctime data into epoch (in ms)</li>
      *     <li>extract corresponding hour of day from ctime, format = yyyyMMddHH</li>
-     *     <li>async insert the data into centreon.databin, centreon.databin_by_hour and centreon.rrd_aggregated</li>
+     *     <li>async insert the data into centreon.databin, centreon.analytics_aggregated and centreon.rrd_aggregated</li>
      * </ul>
      *
      * For each <code>dse.async_batch_size</code> inserts, we force the thread to sleep <code>dse.async_batch_sleep_in_millis</code> to let the cluster absorb the load
@@ -114,7 +119,7 @@ public class InjectionService {
                     final UUID service = metaDataQueries.getServiceIdForIdMetric(idMetric);
 
                     futures.put(databinQueries.insertIntoDatabin(idMetric, cTimeAsEpoch, value, status), line);
-                    futures.put(databinQueries.insertIntoDatabinByHour(hour, idMetric, cTimeAsEpoch, value, status), line);
+                    futures.put(analyticsQueries.insertIntoAnalyticsdAggregatedForHour(idMetric, hour, cTimeAsEpoch, value), line);
                     futures.put(rrdQueries.insertIntoRrdAggregatedForHour(service, hour, idMetric, seconds, value), line);
 
                     if (futures.size() >= asyncBatchSize) {

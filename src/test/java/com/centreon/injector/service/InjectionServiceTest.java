@@ -9,9 +9,10 @@ import org.junit.Test;
 import org.springframework.core.env.Environment;
 
 import com.centreon.injector.configuration.DSEConfiguration;
-import com.centreon.injector.data_access.DatabinQueries;
-import com.centreon.injector.data_access.MetaDataQueries;
-import com.centreon.injector.data_access.RRDQueries;
+import com.centreon.injector.repository.AnalyticsQueries;
+import com.centreon.injector.repository.DatabinQueries;
+import com.centreon.injector.repository.MetaDataQueries;
+import com.centreon.injector.repository.RRDQueries;
 import com.centreon.injector.error_handling.ErrorFileLogger;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -23,13 +24,14 @@ public class InjectionServiceTest {
     private static final Session SESSION = CassandraEmbeddedServerBuilder
             .builder()
             .withScript("cassandra/schema.cql")
-            .withScript("cassandra/InjectionService/insert_service_meta.cql")
+            .withScript("cassandra/InjectionService/insert_meta_data.cql")
             .buildNativeSession();
 
     private static final DSEConfiguration.DSETopology TOPOLOGY = new DSEConfiguration.DSETopology("centreon", "dc1");
     private static final MetaDataQueries METADATA_QUERIES = new MetaDataQueries(SESSION, TOPOLOGY);
     private static final DatabinQueries DATABIN_QUERIES = new DatabinQueries(SESSION, TOPOLOGY);
     private static final RRDQueries RRD_QUERIES = new RRDQueries(SESSION, TOPOLOGY);
+    private static final AnalyticsQueries ANALYTICS_QUERIES = new AnalyticsQueries(SESSION, TOPOLOGY);
     private static final ErrorFileLogger ERROR_FILE_LOGGER;
     static {
         try {
@@ -94,7 +96,7 @@ public class InjectionServiceTest {
     public void should_inject_from_file() throws Exception {
         //Given
         final InjectionService service = new InjectionService(ENV, DATABIN_QUERIES,
-                METADATA_QUERIES, RRD_QUERIES, ERROR_FILE_LOGGER);
+                METADATA_QUERIES, RRD_QUERIES, ANALYTICS_QUERIES, ERROR_FILE_LOGGER);
         //When
         service.injectDatabin();
 
@@ -105,15 +107,19 @@ public class InjectionServiceTest {
         assertThat(idMetric_90969.getFloat("value")).isEqualTo(42f);
         assertThat(idMetric_90969.getByte("status")).isEqualTo((byte)2);
 
-        final Row idMetric_90969_by_hour = SESSION.execute("SELECT * FROM centreon.databin_by_hour WHERE " +
-                "id_metric = " + 90969 + " " +
-                "AND hour = 2015032503").one();
+        final Row idMetric_90969_by_hour = SESSION.execute("SELECT * FROM centreon.analytics_aggregated WHERE " +
+                " id_metric = " + 90969 +
+                " AND aggregation_unit='HOUR' " +
+                " AND time_value = 2015032503").one();
         assertThat(idMetric_90969_by_hour).isNotNull();
-        assertThat(idMetric_90969_by_hour.getLong("ctime")).isEqualTo(1427252950000L);
-        assertThat(idMetric_90969_by_hour.getFloat("value")).isEqualTo(42f);
-        assertThat(idMetric_90969_by_hour.getByte("status")).isEqualTo((byte)2);
+        assertThat(idMetric_90969_by_hour.getLong("previous_time_value")).isEqualTo(1427252950000L);
+        assertThat(idMetric_90969_by_hour.getFloat("min")).isEqualTo(42f);
+        assertThat(idMetric_90969_by_hour.getFloat("max")).isEqualTo(42f);
+        assertThat(idMetric_90969_by_hour.getFloat("sum")).isEqualTo(42f);
+        assertThat(idMetric_90969_by_hour.getInt("count")).isEqualTo(1);
 
-        final Row idMetric_95798 = SESSION.execute("SELECT * FROM centreon.rrd_aggregated WHERE service=123e4567-e89b-12d3-a456-426655440000" +
+        final Row idMetric_95798 = SESSION.execute("SELECT * FROM centreon.rrd_aggregated WHERE " +
+                " service=123e4567-e89b-12d3-a456-426655440000" +
                 " AND aggregation_unit='HOUR' " +
                 " AND time_value=2016021002").one();
         assertThat(idMetric_95798).isNotNull();

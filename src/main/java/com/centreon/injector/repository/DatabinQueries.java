@@ -1,4 +1,4 @@
-package com.centreon.injector.data_access;
+package com.centreon.injector.repository;
 
 import static java.lang.String.format;
 
@@ -16,7 +16,7 @@ import com.datastax.driver.core.Session;
 
 /**
  *
- *  Repository class to insert data into the following tables:
+ *  Repository class to insert data into the following table:
  *
  *   CREATE TABLE IF NOT EXISTS centreon.databin (
  *       id_metric int,
@@ -24,15 +24,6 @@ import com.datastax.driver.core.Session;
  *       value float,
  *       status tinyint,
  *       PRIMARY KEY((id_metric), ctime)
- *   );
- *
- *   CREATE TABLE IF NOT EXISTS centreon.databin_by_hour (
- *       hour bigint,
- *       id_metric int,
- *       ctime bigint,
- *       value float,
- *       status tinyint,
- *       PRIMARY KEY((hour, id_metric), ctime)
  *   );
  **/
 @Repository
@@ -43,22 +34,14 @@ public class DatabinQueries {
             "databin(id_metric, ctime, value, status) " +
             "VALUES(:id_metric, :ctime, :value, :status)";
 
-    public final String INSERT_INTO_DATABIN_BY_HOUR = "INSERT INTO %s." +
-            "databin_by_hour(hour, id_metric, ctime, value, status) " +
-            "VALUES(:hour, :id_metric, :ctime, :value, :status)";
-
     private final Session session;
     private final PreparedStatement INSERT_INTO_DATABIN_PS;
-    private final PreparedStatement INSERT_INTO_DATABIN_BY_HOUR_PS;
 
     public DatabinQueries(@Autowired Session session, @Autowired DSETopology dseTopology) {
         LOGGER.info("Start preparing queries");
         this.session = session;
         this.INSERT_INTO_DATABIN_PS = session.prepare(new SimpleStatement(
                 format(INSERT_INTO_DATABIN, dseTopology.keyspace)));
-
-        this.INSERT_INTO_DATABIN_BY_HOUR_PS = session.prepare(new SimpleStatement(
-                format(INSERT_INTO_DATABIN_BY_HOUR, dseTopology.keyspace)));
     }
 
     /**
@@ -88,53 +71,6 @@ public class DatabinQueries {
         final BoundStatement bs = INSERT_INTO_DATABIN_PS.bind();
         bs.setInt("id_metric", idMetric);
         bs.setLong("ctime", cTimeAsEpoch);
-        if (value == null) {
-            bs.unset("value");
-        } else {
-            bs.setFloat("value", value);
-        }
-        if (status == null) {
-            bs.unset("status");
-        } else {
-            byte statusByte = ((byte) ((int)status));
-            bs.setByte("status", statusByte);
-        }
-
-        bs.setIdempotent(true);
-
-        return session.executeAsync(bs);
-    }
-
-    /**
-     * <br/>
-     * Insert data into the centreon.databin_by_hour table.
-     * <br/>
-     * <br/>
-     * Please note that mandatory (non null) values are:
-     *
-     * <ul>
-     *     <li>hour in format yyyyMMddHH</li>
-     *     <li>idMetric</li>
-     *     <li>cTimeAsEpoch in millisecs</li>
-     * </ul>
-     *
-     * Optional (nullable) values are:
-     *
-     * <ul>
-     *     <li>value</li>
-     *     <li>status</li>
-     * </ul>
-     *
-     */
-    public ResultSetFuture insertIntoDatabinByHour(long hour, int idMetric, long cTimeAsEpoch, Float value, Integer status) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Inserting row {} {} {} {} {} into databin_by_hour", hour, idMetric, cTimeAsEpoch, value, status);
-        }
-        final BoundStatement bs = INSERT_INTO_DATABIN_BY_HOUR_PS.bind();
-        bs.setLong("hour", hour);
-        bs.setInt("id_metric", idMetric);
-        bs.setLong("ctime", cTimeAsEpoch);
-
         if (value == null) {
             bs.unset("value");
         } else {

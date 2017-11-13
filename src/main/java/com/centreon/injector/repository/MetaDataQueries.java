@@ -1,4 +1,4 @@
-package com.centreon.injector.data_access;
+package com.centreon.injector.repository;
 
 import static java.lang.String.format;
 

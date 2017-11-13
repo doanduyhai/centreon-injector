@@ -1,4 +1,4 @@
-package com.centreon.injector.data_access;
+package com.centreon.injector.repository;
 
 import static java.lang.String.format;
 
@@ -35,7 +35,7 @@ import com.datastax.driver.core.Session;
  **/
 @Repository
 public class RRDQueries {
-    static private final Logger LOGGER = LoggerFactory.getLogger(MetaDataQueries.class);
+    static private final Logger LOGGER = LoggerFactory.getLogger(RRDQueries.class);
 
     public final String INSERT_INTO_RRD_AGGREGATED = "INSERT INTO %s." +
             "rrd_aggregated(service, aggregation_unit, time_value, id_metric, previous_time_value, min, max, sum, count) " +
