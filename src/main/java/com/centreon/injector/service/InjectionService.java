@@ -123,21 +123,21 @@ public class InjectionService {
                     futures.put(rrdQueries.insertIntoRrdAggregatedForHour(service, hour, idMetric, seconds, value), line);
 
                     if (futures.size() >= asyncBatchSize) {
-                        asyncInsert(futures);
+                        synchronousGet(futures);
                         futures.clear();
                         Thread.sleep(asyncBatchSleepInMillis);
                     }
                     counter += 3;
 
                     if (counter >= insertProgressCount) {
-                        LOGGER.debug("Successful {} async inserts", insertProgressCount);
+                        LOGGER.debug("Successful {} async inserts", counter);
                         counter = 0;
                     }
                 }
             }
 
             if (futures.size() >= 0) {
-                asyncInsert(futures);
+                synchronousGet(futures);
             }
 
         } catch (IOException e) {
@@ -149,7 +149,7 @@ public class InjectionService {
 
     }
 
-    private void asyncInsert(Map<ListenableFuture<ResultSet>, String> map) {
+    private void synchronousGet(Map<ListenableFuture<ResultSet>, String> map) {
         for (Map.Entry<ListenableFuture<ResultSet>, String> entry: map.entrySet()) {
             try {
                 entry.getKey().get(10, TimeUnit.SECONDS);
