@@ -119,7 +119,7 @@ public class InjectionService {
                     final UUID service = metaDataQueries.getServiceIdForIdMetric(idMetric);
 
                     futures.put(databinQueries.insertIntoDatabin(idMetric, cTimeAsEpoch, value, status), line);
-                    futures.put(analyticsQueries.insertIntoAnalyticsdAggregatedForHour(idMetric, hour, cTimeAsEpoch, value), line);
+                    futures.put(analyticsQueries.insertIntoAnalyticsdAggregatedForHour(idMetric, hour, seconds, value), line);
                     futures.put(rrdQueries.insertIntoRrdAggregatedForHour(service, hour, idMetric, seconds, value), line);
 
                     if (futures.size() >= asyncBatchSize) {
